@@ -1,69 +1,42 @@
 <template>
-<div v-if="meta" :class="$style.root">
-	<div :class="[$style.main, $style.panel]">
-		<img :src="instance.iconUrl || instance.faviconUrl || '/favicon.ico'" alt="" :class="$style.mainIcon"/>
-		<button class="_button _acrylic" :class="$style.mainMenu" @click="showMenu"><i class="ti ti-dots"></i></button>
-		<div :class="$style.mainFg">
-			<h1 :class="$style.mainTitle">
-				<!-- 背景色によってはロゴが見えなくなるのでとりあえず無効に -->
-				<!-- <img class="logo" v-if="meta.logoImageUrl" :src="meta.logoImageUrl"><span v-else class="text">{{ instanceName }}</span> -->
-				<span>{{ instanceName }}</span>
-			</h1>
-			<div :class="$style.mainAbout">
-				<!-- eslint-disable-next-line vue/no-v-html -->
-				<div v-html="meta.description || i18n.ts.headlineMisskey"></div>
+	<div v-if="meta" :class="$style.root">
+		<div :class="[$style.main, $style.panel]">
+			<img :src="instance.iconUrl || instance.faviconUrl || '/favicon.ico'" alt="" :class="$style.mainIcon" />
+			<button class="_button _acrylic" :class="$style.mainMenu" @click="showMenu"><i class="ti ti-dots"></i></button>
+			<div :class="$style.mainFg">
+				<h1 :class="$style.mainTitle">
+					<!-- 背景色によってはロゴが見えなくなるのでとりあえず無効に -->
+					<!-- <img class="logo" v-if="meta.logoImageUrl" :src="meta.logoImageUrl"><span v-else class="text">{{ instanceName }}</span> -->
+					<span>{{ instanceName }}</span>
+				</h1>
+				<div :class="$style.mainAbout">
+					<!-- eslint-disable-next-line vue/no-v-html -->
+					<div v-html="meta.description || i18n.ts.headlineMisskey"></div>
+				</div>
+				<div class="_gaps_s" :class="$style.mainActions">
+					<MkButton :class="[$style.mainAction, $style.hidden]" full rounded data-cy-signin @click="signin()">{{
+						i18n.ts.login }}
+					</MkButton>
+					<MkButton :class="$style.mainAction" full rounded gradate data-cy-signup @click="redirectToEstampie">
+						覗いてみる
+					</MkButton>
+				</div>
 			</div>
-			<div v-if="instance.disableRegistration" :class="$style.mainWarn">
-				<MkInfo warn>{{ i18n.ts.invitationRequiredToRegister }}</MkInfo>
-			</div>
-			<div class="_gaps_s" :class="$style.mainActions">
-				<MkButton :class="$style.mainAction" full rounded gradate data-cy-signup style="margin-right: 12px;" @click="signup()">{{ i18n.ts.joinThisServer }}</MkButton>
-				<MkButton :class="$style.mainAction" full rounded @click="exploreOtherServers()">{{ i18n.ts.exploreOtherServers }}</MkButton>
-				<MkButton :class="$style.mainAction" full rounded data-cy-signin @click="signin()">{{ i18n.ts.login }}</MkButton>
-			</div>
 		</div>
 	</div>
-	<div v-if="stats" :class="$style.stats">
-		<div :class="[$style.statsItem, $style.panel]">
-			<div :class="$style.statsItemLabel">{{ i18n.ts.users }}</div>
-			<div :class="$style.statsItemCount"><MkNumber :value="stats.originalUsersCount"/></div>
-		</div>
-		<div :class="[$style.statsItem, $style.panel]">
-			<div :class="$style.statsItemLabel">{{ i18n.ts.notes }}</div>
-			<div :class="$style.statsItemCount"><MkNumber :value="stats.originalNotesCount"/></div>
-		</div>
-	</div>
-	<div v-if="instance.policies.ltlAvailable" :class="[$style.tl, $style.panel]">
-		<div :class="$style.tlHeader">{{ i18n.ts.letsLookAtTimeline }}</div>
-		<div :class="$style.tlBody">
-			<MkTimeline src="local"/>
-		</div>
-	</div>
-	<div :class="$style.panel">
-		<XActiveUsersChart/>
-	</div>
-</div>
 </template>
 
 <script lang="ts" setup>
 import { } from 'vue';
 import { Instance } from 'misskey-js/built/entities';
-import XTimeline from './welcome.timeline.vue';
 import XSigninDialog from '@/components/MkSigninDialog.vue';
-import XSignupDialog from '@/components/MkSignupDialog.vue';
 import MkButton from '@/components/MkButton.vue';
-import MkTimeline from '@/components/MkTimeline.vue';
-import MkInfo from '@/components/MkInfo.vue';
 import { instanceName } from '@/config';
 import * as os from '@/os';
 import { i18n } from '@/i18n';
 import { instance } from '@/instance';
-import number from '@/filters/number';
-import MkNumber from '@/components/MkNumber.vue';
-import XActiveUsersChart from '@/components/MkVisitorDashboard.ActiveUsersChart.vue';
 
 let meta = $ref<Instance>();
-let stats = $ref(null);
 
 os.api('meta', { detail: true }).then(_meta => {
 	meta = _meta;
@@ -74,14 +47,13 @@ os.api('stats', {
 	stats = res;
 });
 
-function signin() {
-	os.popup(XSigninDialog, {
-		autoSet: true,
-	}, {}, 'closed');
+// ログインでなくアカウントへ
+function redirectToEstampie() {
+	window.location.href = "https://m.estampie.work/@noc";
 }
 
-function signup() {
-	os.popup(XSignupDialog, {
+function signin() {
+	os.popup(XSigninDialog, {
 		autoSet: true,
 	}, {}, 'closed');
 }
@@ -108,10 +80,6 @@ function showMenu(ev) {
 	}], ev.currentTarget ?? ev.target);
 }
 
-function exploreOtherServers() {
-	// TODO: 言語をよしなに
-	window.open('https://join.misskey.page/ja-JP/instances', '_blank');
-}
 </script>
 
 <style lang="scss" module>
@@ -179,6 +147,10 @@ function exploreOtherServers() {
 
 .mainActions {
 	padding: 32px;
+}
+
+.hidden {
+	display: none;
 }
 
 .mainAction {
