@@ -9,6 +9,9 @@ import type { DriveFile } from './DriveFile.js';
 @Index('IDX_NOTE_TAGS', { synchronize: false })
 @Index('IDX_NOTE_MENTIONS', { synchronize: false })
 @Index('IDX_NOTE_VISIBLE_USER_IDS', { synchronize: false })
+// PGroongaのインデックス追加
+@Entity('note')
+@Index('idx_note_text_cw_pgroonga', ['text', 'cw'], { using: 'pgroonga' })
 export class Note {
 	@PrimaryColumn(id())
 	public id: string;
