@@ -1,11 +1,12 @@
 <template>
-<div v-if="hasDisconnected && defaultStore.state.serverDisconnectedBehavior === 'quiet'" :class="$style.root" class="_panel _shadow" @click="resetDisconnected">
-	<div><i class="ti ti-alert-triangle"></i> {{ i18n.ts.disconnectedFromServer }}</div>
-	<div :class="$style.command" class="_buttons">
-		<MkButton small primary @click="reload">{{ i18n.ts.reload }}</MkButton>
-		<MkButton small>{{ i18n.ts.doNothing }}</MkButton>
+	<div v-if="hasDisconnected && defaultStore.state.serverDisconnectedBehavior === 'quiet'" :class="$style.root"
+		class="_panel _shadow" @click="resetDisconnected">
+		<div><i class="ti ti-alert-triangle"></i> {{ i18n.ts.disconnectedFromServer }}</div>
+		<div :class="$style.command" class="_buttons">
+			<MkButton small primary @click="reload">{{ i18n.ts.reload }}</MkButton>
+			<MkButton small>{{ i18n.ts.doNothing }}</MkButton>
+		</div>
 	</div>
-</div>
 </template>
 
 <script lang="ts" setup>
@@ -49,6 +50,7 @@ onUnmounted(() => {
 	padding: 12px;
 	font-size: 0.9em;
 	max-width: 320px;
+	display: none;
 }
 
 .command {
