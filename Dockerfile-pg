@@ -1,5 +1,6 @@
 FROM postgres:15-bookworm
 
+# PGroonga install
 ENV PGROONGA_VERSION=3.1.1-1
 RUN \
     apt update && \
@@ -45,5 +46,14 @@ RUN echo "0 */2 * * * /usr/local/bin/backup_script.sh incremental" >> /etc/cront
 # バックアップスクリプトの自動実行は
 # sudo docker exec -it コンテナ名 /usr/local/bin/start.sh start 
 # で開始、引数stopで終了できる
+
+# rclone install
+# ホストOSでrclone configしてrclone.confを作成しておき、
+# docker-compose.yamlのDBのvolumeに
+# `- /ホストOSのrclone設定ファイルの場所/rclone.conf:/root/.config/rclone/rclone.conf `を追加しておく
+# ...
+RUN apt update && \
+    apt install -y curl unzip && \
+    curl https://rclone.org/install.sh | bash
 
 CMD ["docker-entrypoint.sh", "postgres"]
