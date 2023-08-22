@@ -1,4 +1,5 @@
 #!/bin/bash
+export TZ='Asia/Tokyo'
 
 BACKUP_DIR="/var/lib/postgresql/backup"
 DB_DIR="/var/lib/postgresql/data"
