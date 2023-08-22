@@ -43,6 +43,10 @@ RUN chmod +x /usr/local/bin/start.sh
 RUN echo "0 2 * * * /usr/local/bin/backup_script.sh full" > /etc/crontab
 RUN echo "0 */2 * * * /usr/local/bin/backup_script.sh incremental" >> /etc/crontab
 
+# cronログファイルの作成
+RUN touch /var/log/cron.log
+RUN echo 'CRON_LOG=/var/log/cron.log' >> /etc/default/cron
+
 # バックアップスクリプトの自動実行は
 # sudo docker exec -it コンテナ名 /usr/local/bin/start.sh start 
 # で開始、引数stopで終了できる

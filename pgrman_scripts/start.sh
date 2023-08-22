@@ -2,6 +2,7 @@
 
 case "$1" in
   start)
+    service cron restart
     cron
     ;;
   stop)
