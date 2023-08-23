@@ -16,9 +16,9 @@ USER_ID=${USER_ID}
 # Line通知スクリプト
 send_line_message() {
     message=$1
-    response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $CHANNEL_ACCESS_TOKEN" \
+    response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${CHANNEL_ACCESS_TOKEN}" \
         -d '{
-            "to": "'"$USER_ID"'",
+            "to": "'"${USER_ID}"'",
             "messages": [
                 {
                     "type": "text",
