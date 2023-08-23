@@ -16,16 +16,16 @@ USER_ID=${USER_ID}
 # Line通知スクリプト
 send_line_message() {
     message=$1
-    curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $CHANNEL_ACCESS_TOKEN" \
+    response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $CHANNEL_ACCESS_TOKEN" \
         -d '{
-            "to": "'$USER_ID'",
+            "to": "'"$USER_ID"'",
             "messages": [
                 {
                     "type": "text",
-                    "text": "'$message'"
+                    "text": "'"$message"'"
                 }
             ]
-        }' https://api.line.me/v2/bot/message/push
+        }' https://api.line.me/v2/bot/message/push 2>&1)
 }
 
 #アーカイブディレクトリの作成
