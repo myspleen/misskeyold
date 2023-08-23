@@ -37,7 +37,7 @@ RUN apt-get update && apt-get install -y cron
 
 COPY pgrman_scripts/backup_script.sh /usr/local/bin/backup_script.sh
 COPY pgrman_scripts/start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/backup_script.sh
+RUN chmod 777 /usr/local/bin/backup_script.sh
 RUN chmod +x /usr/local/bin/start.sh
 
 RUN echo "0 2 * * * /usr/local/bin/backup_script.sh full" > /etc/crontab
