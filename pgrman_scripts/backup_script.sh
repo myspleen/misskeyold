@@ -79,7 +79,7 @@ log "rclone sync $BACKUP_DIR $RCLONE_REMOTE:$RCLONE_PATH finished."
 log "Backup script completed."
 
 if [ "$MODE" == "full" ]; then
-    send_line_message "✅Misskey - フルバックアップが完了しました"
+    send_line_notification "✅Misskey - Full backup completed."
 else
-    send_line_message "✅Misskey - 差分バックアップが完了しました"
+    send_line_notification "✅Misskey - Incremental backup completed."
 fi
