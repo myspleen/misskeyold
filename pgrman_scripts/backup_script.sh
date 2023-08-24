@@ -10,6 +10,9 @@ RCLONE_REMOTE="onedrive"  # rcloneリモート名
 RCLONE_PATH="server/backup/misskey"  # 保存先のOneDriveフォルダのパス
 LOG_FILE="/var/lib/postgresql/backup/backup.log"
 
+timestamp=$(date +"%Y%m%d%H%M%S")
+compressed_backup_file="${BACKUP_DIR}/backup_${MODE}_${timestamp}.tar.gz"
+
 # Line通知スクリプト
 send_line_message() {
     message=$1
@@ -67,14 +70,34 @@ if [ $? -ne 0 ]; then
 fi
 log "/usr/lib/postgresql/15/bin/pg_rman validate -b $BACKUP_DIR -D $DB_DIR -A $ARCHIVE_DIR finished."
 
+# バックアップをpigzで圧縮
+tar -cf - -C "$BACKUP_DIR" . | pigz > "$compressed_backup_file"
+if [ $? -ne 0 ]; then
+    log "Error: Backup compression using pigz failed."
+    send_line_message "❌Misskey - Error: Backup compression using pigz failed."
+    exit 1
+fi
+log "Backup compression using pigz completed."
+
 # rcloneでOneDriveにアップロード
-rclone sync $BACKUP_DIR $RCLONE_REMOTE:$RCLONE_PATH >> $LOG_FILE 2>&1
+rclone_dest_path="${RCLONE_BASE_PATH}/${MODE}"
+rclone sync "$compressed_backup_file" "$RCLONE_REMOTE:$rclone_dest_path" >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     log "Error: rclone sync failed."
     send_line_message "❌Misskey - Error: rclone sync failed."
     exit 1
 fi
-log "rclone sync $BACKUP_DIR $RCLONE_REMOTE:$RCLONE_PATH finished."
+log "rclone sync $compressed_backup_file $RCLONE_REMOTE:$rclone_dest_path finished."
+
+# 圧縮ファイルを削除
+rm -f "$compressed_backup_file"
+if [ $? -ne 0 ]; then
+    log "Error: Failed to delete compressed backup file."
+    send_line_message "❌Misskey - Error: Failed to delete compressed backup file."
+    exit 1
+fi
+log "Temporary compressed backup file $compressed_backup_file deleted."
+
 
 log "Backup script completed."
 
