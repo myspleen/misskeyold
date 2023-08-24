@@ -52,13 +52,12 @@ log() {
 }
 
 log "Backup script started."
-send_line_message "Misskey -  Backup script started."
 
 # pg_rmanバックアップを実行
 /usr/lib/postgresql/15/bin/pg_rman backup --backup-mode=$MODE -B $BACKUP_DIR -D $DB_DIR -A $ARCHIVE_DIR >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
   log "Error: pg_rman backup failed."
-  send_line_message "Misskey - Error: pg_rman backup failed."
+  send_line_message "❌Misskey - Error: pg_rman backup failed."
   exit 1
 fi
 log "pg_rman backup --backup-mode=$MODE -b $BACKUP_DIR -D $DB_DIR -A $ARCHIVE_DIR finished."
@@ -75,6 +74,7 @@ log "/usr/lib/postgresql/15/bin/pg_rman validate -b $BACKUP_DIR -D $DB_DIR -A $A
 rclone sync $BACKUP_DIR $RCLONE_REMOTE:$RCLONE_PATH >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
   log "Error: rclone sync failed."
+  send_line_message "❌Misskey - Error: rclone sync failed."
   exit 1
 fi
 log "rclone sync $BACKUP_DIR $RCLONE_REMOTE:$RCLONE_PATH finished."
@@ -83,9 +83,9 @@ log "Backup script completed."
 
 if [ "$MODE" == "full" ]; then
     log "Full backup script completed."
-    send_line_message "Misskey - Full backup script completed."
+    send_line_message "✅Misskey - フルバックアップが完了しました。"
 else
     log "Incremental backup script completed."
-    send_line_message "Misskey - Incremental backup script completed."
+    send_line_message "✅Misskey - 差分バックアップが完了しました。"
 fi
 
