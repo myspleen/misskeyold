@@ -92,7 +92,7 @@ rm -f $COMPRESSED_BACKUP
 log "Backup script completed."
 
 if [ "$MODE" == "full" ]; then
-    send_line_notification "✅Misskey - Full backup completed."
+    send_line_message "✅Misskey - Full backup completed."
 else
-    send_line_notification "✅Misskey - Incremental backup completed."
+    send_line_message "✅Misskey - Incremental backup completed."
 fi
