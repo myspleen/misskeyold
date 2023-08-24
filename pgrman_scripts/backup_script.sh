@@ -4,9 +4,9 @@ export TZ='Asia/Tokyo'
 
 BASE_BACKUP_DIR="/var/lib/postgresql/backup"
 DATE=$(date +"%Y-%m-%d_%H%M%S")
-MODE="$1" # "full" or "incremental"
 BACKUP_SUBDIR="${BASE_BACKUP_DIR}/${DATE}_$MODE"
 ARCHIVE_DIR="/var/lib/postgresql/archive"
+MODE="$1" # "full" or "incremental"
 RCLONE_REMOTE="onedrive"
 RCLONE_PATH="server/backup/misskey"
 LOG_FILE="/var/lib/postgresql/backup/backup.log"
@@ -26,13 +26,18 @@ send_line_message() {
         }' https://api.line.me/v2/bot/message/push 2>&1)
 }
 
-# フォルダ生成
+# Ensure backup and archive directories exist
 for dir in "$BACKUP_SUBDIR" "$ARCHIVE_DIR"; do
     if [ ! -d "$dir" ]; then
         mkdir -p "$dir"
         chown postgres:postgres "$dir"
     fi
 done
+
+# rcloneの設定ファイルの場所を指定
+export RCLONE_CONFIG="/root/.config/rclone/rclone.conf"
+export PGUSER=$POSTGRES_USER
+export PGDATABASE=$POSTGRES_DB
 
 # Ensure log directory exists
 if [ ! -d "$(dirname $LOG_FILE)" ]; then
@@ -47,22 +52,24 @@ log() {
 log "Backup script started."
 
 # pg_rmanバックアップを実行
-/usr/lib/postgresql/15/bin/pg_rman backup --backup-mode=$MODE -B $BACKUP_SUBDIR -D $DB_DIR -A $ARCHIVE_DIR >> $LOG_FILE 2>&1
+/usr/lib/postgresql/15/bin/pg_rman backup --backup-mode=$MODE -B $BACKUP_DIR -D $DB_DIR -A $ARCHIVE_DIR >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     log "Error: pg_rman backup failed."
     send_line_message "❌Misskey - Error: pg_rman backup failed."
     exit 1
 fi
+log "pg_rman backup --backup-mode=$MODE -b $BACKUP_DIR -D $DB_DIR -A $ARCHIVE_DIR finished."
 
 # バックアップを検証
-/usr/lib/postgresql/15/bin/pg_rman validate -B $BACKUP_SUBDIR -D $DB_DIR -A $ARCHIVE_DIR >> $LOG_FILE 2>&1
+/usr/lib/postgresql/15/bin/pg_rman validate -B $BACKUP_DIR -D $DB_DIR -A $ARCHIVE_DIR >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     log "Error: pg_rman validate failed."
     send_line_message "❌Misskey - Error: pg_rman validate failed."
     exit 1
 fi
+log "/usr/lib/postgresql/15/bin/pg_rman validate -b $BACKUP_DIR -D $DB_DIR -A $ARCHIVE_DIR finished."
 
-# pigzで圧縮
+# バックアップをpigzで圧縮
 COMPRESSED_BACKUP="${BACKUP_SUBDIR}.tar.gz"
 log "Compressing the backup directory."
 tar cf - $BACKUP_SUBDIR | pigz > $COMPRESSED_BACKUP
@@ -79,6 +86,10 @@ if [ $? -ne 0 ]; then
     send_line_message "❌Misskey - Error: rclone sync failed."
     exit 1
 fi
+log "rclone sync $COMPRESSED_BACKUP $RCLONE_REMOTE:$RCLONE_PATH finished."
+
+# 圧縮ファイルを削除
+rm -f $COMPRESSED_BACKUP
 
 log "Backup script completed."
 
