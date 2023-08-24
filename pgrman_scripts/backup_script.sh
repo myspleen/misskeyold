@@ -11,6 +11,11 @@ RCLONE_REMOTE="onedrive"
 RCLONE_PATH="server/backup/misskey"
 LOG_FILE="/var/lib/postgresql/backup/backup.log"
 
+# rcloneの設定ファイルの場所を指定
+export RCLONE_CONFIG="/root/.config/rclone/rclone.conf"
+export PGUSER=$POSTGRES_USER
+export PGDATABASE=$POSTGRES_DB
+
 # Line通知スクリプト
 send_line_message() {
     message=$1
