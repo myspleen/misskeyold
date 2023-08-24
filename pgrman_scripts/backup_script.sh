@@ -67,14 +67,27 @@ if [ $? -ne 0 ]; then
 fi
 log "/usr/lib/postgresql/15/bin/pg_rman validate -b $BACKUP_DIR -D $DB_DIR -A $ARCHIVE_DIR finished."
 
+# バックアップをpigzで圧縮
+COMPRESSED_BACKUP="$BACKUP_DIR.tar.gz"
+log "Compressing the backup directory."
+tar cf - $BACKUP_DIR | pigz > $COMPRESSED_BACKUP
+if [ $? -ne 0 ]; then
+    log "Error: Compression using pigz failed."
+    send_line_message "❌Misskey - Error: Compression using pigz failed."
+    exit 1
+fi
+
 # rcloneでOneDriveにアップロード
-rclone sync $BACKUP_DIR $RCLONE_REMOTE:$RCLONE_PATH >> $LOG_FILE 2>&1
+rclone sync $COMPRESSED_BACKUP $RCLONE_REMOTE:$RCLONE_PATH >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     log "Error: rclone sync failed."
     send_line_message "❌Misskey - Error: rclone sync failed."
     exit 1
 fi
-log "rclone sync $BACKUP_DIR $RCLONE_REMOTE:$RCLONE_PATH finished."
+log "rclone sync $COMPRESSED_BACKUP $RCLONE_REMOTE:$RCLONE_PATH finished."
+
+# 圧縮ファイルを削除
+rm -f $COMPRESSED_BACKUP
 
 log "Backup script completed."
 
