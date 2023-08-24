@@ -47,7 +47,7 @@ log() {
 log "Backup script started."
 
 # pg_rmanバックアップを実行
-/usr/lib/postgresql/15/bin/pg_rman backup --backup-mode=$MODE -B $BACKUP_SUBDIR -D $DB_DIR -A $ARCHIVE_DIR >> $LOG_FILE 2>&1
+/usr/lib/postgresql/15/bin/pg_rman backup --backup-mode=$MODE -B $BASE_BACKUP_DIR -D $DB_DIR -A $ARCHIVE_DIR >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     log "Error: pg_rman backup failed."
     send_line_message "❌Misskey - Error: pg_rman backup failed."
@@ -73,7 +73,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # rcloneでOneDriveにアップロード
-rclone sync $COMPRESSED_BACKUP $RCLONE_REMOTE:$RCLONE_PATH >> $LOG_FILE 2>&1
+rclone copy $COMPRESSED_BACKUP $RCLONE_REMOTE:$RCLONE_PATH >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
     log "Error: rclone sync failed."
     send_line_message "❌Misskey - Error: rclone sync failed."
