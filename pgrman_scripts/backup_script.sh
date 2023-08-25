@@ -7,7 +7,7 @@ DB_DIR="/var/lib/postgresql/data"
 ARCHIVE_DIR="/var/lib/postgresql/archive"
 MODE="$1"
 RCLONE_REMOTE="onedrive"  # rcloneリモート名
-RCLONE_PATH="server/backup/misskey"  # 保存先のOneDriveフォルダのパス
+RCLONE_BASE_PATH="server/backup/misskey"  # 保存先の基本のOneDriveフォルダのパス
 LOG_FILE="/var/lib/postgresql/backup/backup.log"
 
 timestamp=$(date +"%Y%m%d%H%M%S")
