@@ -2,6 +2,12 @@
 
 export TZ='Asia/Tokyo'
 
+set -e
+clean_up() {
+    rm -f "$compressed_backup_file"
+}
+trap clean_up EXIT
+
 BACKUP_DIR="/var/lib/postgresql/backup"
 DB_DIR="/var/lib/postgresql/data"
 ARCHIVE_DIR="/var/lib/postgresql/archive"
@@ -52,6 +58,16 @@ log() {
 
 log "Backup script started."
 
+# バックアップ実行前に容量を確認
+REQUIRED_SPACE=52428800  # 50GB (Change this based on your needs)
+AVAILABLE_SPACE=$(df "$BACKUP_DIR" | tail -1 | awk '{print $4}')
+
+if [ "$AVAILABLE_SPACE" -lt "$REQUIRED_SPACE" ]; then
+    log "Error: Not enough disk space for backup."
+    send_line_message "❌Misskey - Error: Not enough disk space for backup."
+    exit 1
+fi
+
 # pg_rmanバックアップを実行
 /usr/lib/postgresql/15/bin/pg_rman backup --backup-mode=$MODE -B $BACKUP_DIR -D $DB_DIR -A $ARCHIVE_DIR >> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
@@ -80,14 +96,16 @@ fi
 log "Backup compression using pigz completed."
 
 # rcloneでOneDriveにアップロード
-rclone_dest_path="${RCLONE_BASE_PATH}/${MODE}"
 rclone sync "$compressed_backup_file" "$RCLONE_REMOTE:$rclone_dest_path" >> $LOG_FILE 2>&1
-if [ $? -ne 0 ]; then
-    log "Error: rclone sync failed."
-    send_line_message "❌Misskey - Error: rclone sync failed."
+
+# rcloneでアップロードを確認
+uploaded_file_size=$(rclone ls "$RCLONE_REMOTE:$rclone_dest_path" | grep "$(basename $compressed_backup_file)" | awk '{print $1}')
+
+if [ "$uploaded_file_size" -ne $(stat -c%s "$compressed_backup_file") ]; then
+    log "Error: Uploaded file size does not match the original. Upload might have failed."
+    send_line_message "❌Misskey - Error: Uploaded file size mismatch."
     exit 1
 fi
-log "rclone sync $compressed_backup_file $RCLONE_REMOTE:$rclone_dest_path finished."
 
 # 圧縮ファイルを削除
 rm -f "$compressed_backup_file"
