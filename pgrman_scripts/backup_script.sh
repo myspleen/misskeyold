@@ -96,7 +96,7 @@ fi
 log "Backup compression using pigz completed."
 
 # rcloneでOneDriveにアップロード
-rclone sync "$compressed_backup_file" "$RCLONE_REMOTE:$rclone_dest_path" >> $LOG_FILE 2>&1
+rclone copy "$compressed_backup_file" "$RCLONE_REMOTE:$rclone_dest_path" >> $LOG_FILE 2>&1
 
 # rcloneでアップロードを確認
 uploaded_file_size=$(rclone ls "$RCLONE_REMOTE:$rclone_dest_path" | grep "$(basename $compressed_backup_file)" | awk '{print $1}')
