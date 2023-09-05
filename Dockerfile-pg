@@ -32,39 +32,7 @@ RUN git clone https://github.com/ossc-db/pg_rman.git /tmp/pg_rman && \
     make && make install && \
     rm -rf /tmp/pg_rman
 
-# backup script
-RUN apt-get update && apt-get install -y cron
-
-#COPY pgrman_scripts/backup_script.sh /usr/local/bin/backup_script.sh
-#COPY pgrman_scripts/start.sh /usr/local/bin/start.sh
-#RUN chmod 777 /usr/local/bin/backup_script.sh
-#RUN chmod +x /usr/local/bin/start.sh
-
-RUN echo "0 2 * * * /usr/local/bin/backup_script.sh full" > /etc/crontab
-RUN echo "0 */2 * * * /usr/local/bin/backup_script.sh incremental" >> /etc/crontab
-
-# cronログファイルの作成
-RUN touch /var/log/cron.log
-RUN echo 'CRON_LOG=/var/log/cron.log' >> /etc/default/cron
-
-# バックアップスクリプトの自動実行は
-# sudo docker exec -it コンテナ名 /usr/local/bin/start.sh start 
-# で開始、引数stopで終了できる
-
-# rclone install
-# ホストOSでrclone configしてrclone.confを作成しておき、
-# docker-compose.yamlのDBのvolumeに
-# `- /ホストOSのrclone設定ファイルの場所/rclone.conf:/root/.config/rclone/rclone.conf `を追加しておく
-# ...
-RUN apt update && \
-    apt install -y curl unzip && \
-    curl https://rclone.org/install.sh | bash
-
-# pigz
-RUN apt-get update && apt-get install -y \
-    pigz \
-    --no-install-recommends && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# rsync install
+RUN apt-get update && apt-get install -y rsync
 
 CMD ["docker-entrypoint.sh", "postgres"]
