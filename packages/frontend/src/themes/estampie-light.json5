@@ -39,7 +39,7 @@
 		infoFg: '#fff',
 		renote: '#229e82',
 		shadow: 'rgba(0, 0, 0, 0.3)',
-		divider: 'rgba(255, 255, 255, 0.1)',
+		divider: 'rgba(0, 0, 0, 0.08)',
 		hashtag: '#ff9156',
 		mention: '@accent',
 		modalBg: 'rgba(0, 0, 0, 0.5)',
