@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: syuilo and other misskey contributors
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 <template>
 	<div class="mk-app">
 		<a v-if="root" href="https://github.com/misskey-dev/misskey" target="_blank" class="github-corner"
@@ -73,14 +78,14 @@
 <script lang="ts" setup>
 import { ComputedRef, onMounted, provide } from 'vue';
 import XCommon from './_common_/common.vue';
-import { host, instanceName } from '@/config';
-import * as os from '@/os';
-import { instance } from '@/instance';
+import { host, instanceName } from '@/config.js';
+import * as os from '@/os.js';
+import { instance } from '@/instance.js';
 import XSigninDialog from '@/components/MkSigninDialog.vue';
-import { ColdDeviceStorage, defaultStore } from '@/store';
-import { mainRouter } from '@/router';
-import { PageMetadata, provideMetadataReceiver } from '@/scripts/page-metadata';
-import { i18n } from '@/i18n';
+import { ColdDeviceStorage, defaultStore } from '@/store.js';
+import { mainRouter } from '@/router.js';
+import { PageMetadata, provideMetadataReceiver } from '@/scripts/page-metadata.js';
+import { i18n } from '@/i18n.js';
 import MkVisitorDashboard from '@/components/MkVisitorDashboard.vue';
 
 const DESKTOP_THRESHOLD = 1100;

@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: syuilo and other misskey contributors
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 <template>
 	<div v-if="meta" :class="$style.root">
 		<div :class="[$style.main, $style.panel]">
@@ -28,9 +33,11 @@
 
 <script lang="ts" setup>
 import { } from 'vue';
-import { Instance } from 'misskey-js/built/entities';
+import * as Misskey from 'misskey-js';
+import XTimeline from './welcome.timeline.vue';
 import XSigninDialog from '@/components/MkSigninDialog.vue';
 import MkButton from '@/components/MkButton.vue';
+
 import { instanceName } from '@/config';
 import * as os from '@/os';
 import { i18n } from '@/i18n';
