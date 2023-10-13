@@ -4,9 +4,10 @@
  */
 
 import { markRaw, ref } from 'vue';
-import { Storage } from './pizzax';
 import * as Misskey from 'misskey-js';
-import { miLocalStorage } from './local-storage';
+import { miLocalStorage } from './local-storage.js';
+import { Storage } from '@/pizzax.js';
+
 interface PostFormAction {
 	title: string,
 	handler: <T>(form: T, update: (key: unknown, value: unknown) => void) => void;
@@ -100,17 +101,9 @@ export const defaultStore = markRaw(new Storage('base', {
 		where: 'account',
 		default: 'nonSensitiveOnly' as 'likeOnly' | 'likeOnlyForRemote' | 'nonSensitiveOnly' | 'nonSensitiveOnlyForLocalLikeOnlyForRemote' | null,
 	},
-	mutedWords: {
-		where: 'account',
-		default: [],
-	},
 	mutedAds: {
 		where: 'account',
 		default: [] as string[],
-	},
-	showTimelineReplies: {
-		where: 'account',
-		default: false,
 	},
 
 	menu: {
@@ -393,7 +386,6 @@ interface Watcher {
 /**
  * 常にメモリにロードしておく必要がないような設定情報を保管するストレージ(非リアクティブ)
  */
-import { miLocalStorage } from './local-storage';
 import lightTheme from '@/themes/estampie-light.json5';
 import darkTheme from '@/themes/estampie-dark.json5';
 

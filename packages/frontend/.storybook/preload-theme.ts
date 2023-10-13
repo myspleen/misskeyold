@@ -7,8 +7,6 @@ import { readFile, writeFile } from 'node:fs/promises';
 import JSON5 from 'json5';
 
 const keys = [
-	'estampie-light',
-	'estampie-dark',
 	'_dark',
 	'_light',
 	'l-light',

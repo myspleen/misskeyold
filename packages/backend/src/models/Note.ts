@@ -14,11 +14,11 @@ import type { MiDriveFile } from './DriveFile.js';
 @Index('IDX_NOTE_TAGS', { synchronize: false })
 @Index('IDX_NOTE_MENTIONS', { synchronize: false })
 @Index('IDX_NOTE_VISIBLE_USER_IDS', { synchronize: false })
+@Index('idx_note_text_cw_pgroonga', ['text', 'cw'], { using: 'pgroonga' })
 export class MiNote {
 	@PrimaryColumn(id())
 	public id: string;
 
-	@Index()
 	@Column('timestamp with time zone', {
 		comment: 'The created date of the Note.',
 	})
@@ -139,11 +139,6 @@ export class MiNote {
 	})
 	public url: string | null;
 
-	@Column('integer', {
-		default: 0, select: false,
-	})
-	public score: number;
-
 	@Index()
 	@Column({
 		...id(),
@@ -151,7 +146,6 @@ export class MiNote {
 	})
 	public fileIds: MiDriveFile['id'][];
 
-	@Index()
 	@Column('varchar', {
 		length: 256, array: true, default: '{}',
 	})

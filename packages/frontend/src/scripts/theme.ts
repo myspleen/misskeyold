@@ -5,7 +5,11 @@
 
 import { ref } from 'vue';
 import tinycolor from 'tinycolor2';
-import { globalEvents } from '@/events';
+import { deepClone } from './clone.js';
+import { globalEvents } from '@/events.js';
+import lightTheme from '@/themes/estampie-light.json5';
+import darkTheme from '@/themes/estampie-dark.json5';
+import { miLocalStorage } from '@/local-storage.js';
 
 export type Theme = {
 	id: string;
@@ -16,17 +20,10 @@ export type Theme = {
 	props: Record<string, string>;
 };
 
-import lightTheme from '@/themes/estampie-light.json5';
-import darkTheme from '@/themes/estampie-dark.json5';
-import { deepClone } from './clone';
-import { miLocalStorage } from '@/local-storage.js';
-
 export const themeProps = Object.keys(lightTheme.props).filter(key => !key.startsWith('X'));
 
 export const getBuiltinThemes = () => Promise.all(
 	[
-		'estampie-light',
-		'estampie-dark',
 		'l-light',
 		'l-coffee',
 		'l-apricot',
@@ -103,18 +100,11 @@ export function applyTheme(theme: Theme, persist = true) {
 
 function compile(theme: Theme): Record<string, string> {
 	function getColor(val: string): tinycolor.Instance {
-		// ref (prop)
-		if (val[0] === '@') {
+		if (val[0] === '@') { // ref (prop)
 			return getColor(theme.props[val.substring(1)]);
-		}
-
-		// ref (const)
-		else if (val[0] === '$') {
+		} else if (val[0] === '$') { // ref (const)
 			return getColor(theme.props[val]);
-		}
-
-		// func
-		else if (val[0] === ':') {
+		} else if (val[0] === ':') { // func
 			const parts = val.split('<');
 			const func = parts.shift().substring(1);
 			const arg = parseFloat(parts.shift());
