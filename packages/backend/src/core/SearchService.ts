@@ -208,13 +208,18 @@ export class SearchService {
 				.leftJoinAndSelect('reply.user', 'replyUser')
 				.leftJoinAndSelect('renote.user', 'renoteUser');
 
-			if (opts.host) {
-				if (opts.host === '.') {
-					query.andWhere('user.host IS NULL');
-				} else {
-					query.andWhere('user.host = :host', { host: opts.host });
+				if (opts.host) {
+					if (opts.host === '.') {
+						query.andWhere('user.host IS NULL');
+					} else {
+						query.andWhere('user.host = :host', { host: opts.host });
+					}
 				}
-			}
+				
+				if (opts.userId) {
+					query.andWhere('note.userId = :userId', { userId: opts.userId });
+				}
+				
 
 			this.queryService.generateVisibilityQuery(query, me);
 			if (me) this.queryService.generateMutedUserQuery(query, me);
