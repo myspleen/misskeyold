@@ -201,7 +201,7 @@ export class SearchService {
 			}
 
 			query
-				.andWhere('note.text &@~ :q OR note.cw &@~ :q', { q })
+			    .andWhere('(note.text &@~ :q) OR (note.cw &@~ :q)', { q })
 				.innerJoinAndSelect('note.user', 'user')
 				.leftJoinAndSelect('note.reply', 'reply')
 				.leftJoinAndSelect('note.renote', 'renote')
