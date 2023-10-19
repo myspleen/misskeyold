@@ -208,11 +208,10 @@ export class SearchService {
 				.leftJoinAndSelect('reply.user', 'replyUser')
 				.leftJoinAndSelect('renote.user', 'renoteUser');
 
+
 				if (opts.host) {
 					if (opts.host === '.') {
 						query.andWhere('user.host IS NULL');
-					} else {
-						query.andWhere('user.host = :host', { host: opts.host });
 					}
 				}
 				
