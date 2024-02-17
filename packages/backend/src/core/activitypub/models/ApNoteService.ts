@@ -154,6 +154,8 @@ export class ApNoteService {
 			throw new Error('actor has been suspended');
 		}
 
+
+
 		const noteAudience = await this.apAudienceService.parseAudience(actor, note.to, note.cc, resolver);
 		let visibility = noteAudience.visibility;
 		const visibleUsers = noteAudience.visibleUsers;
@@ -230,6 +232,7 @@ export class ApNoteService {
 
 		const cw = note.summary === '' ? null : note.summary;
 
+
 		// テキストのパース
 		let text: string | null = null;
 		if (note.source?.mediaType === 'text/x.misskeymarkdown' && typeof note.source.content === 'string') {
@@ -239,7 +242,19 @@ export class ApNoteService {
 		} else if (typeof note.content === 'string') {
 			text = this.apMfmService.htmlToMfm(note.content, note.tag);
 		}
+		// 禁止ワードチェック
+		const containsBannedWord = bannedWords.some(bannedWord => text?.includes(bannedWord));
 
+		// textが空、または空白のみであるかどうかをチェック
+		const isEmptyOrWhitespace = !text || text.trim().length === 0;
+
+		// ホワイトリストチェック（actor.hostがホワイトリストに含まれていない場合、falseを返す）
+		const isHostWhitelisted = whitelistHosts.some(whitelistHost => actor.host.includes(whitelistHost));
+
+		// 禁止ワードが含まれている、またはtextが空または空白のみであり、かつホワイトリストに含まれていない場合、エラーを投げる
+		if ((containsBannedWord || isEmptyOrWhitespace) && !isHostWhitelisted) {
+			throw new Error(`Note's text is invalid (empty, whitespace only, or contains banned words) and actor's host is not whitelisted: ${note.id}`);
+		}
 		// vote
 		if (reply && reply.hasPoll) {
 			const poll = await this.pollsRepository.findOneByOrFail({ noteId: reply.id });
